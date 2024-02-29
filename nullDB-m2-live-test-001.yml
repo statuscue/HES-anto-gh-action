@@ -1,0 +1,24 @@
+name: NullDB activate m2-live-test-001
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup NullDB
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.M2_LIVE_TEST_SSH_IP }}
+          username: ${{ secrets.M2_LIVE_TEST_SSH_USER }}
+          key: ${{ secrets.M2_LIVE_TEST_SSH_KEY }}
+          script: |
+            rm -r /home/deploy/magento/project-enterprise-edition/
+            cd /home/deploy/magento/
+            bash download-magento.sh
+            cd /home/deploy/magento/
+            bash setup-null-db.sh
