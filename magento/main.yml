@@ -1,0 +1,129 @@
+name: m2amida-mvp.antoshka.ua
+
+on:
+  push:
+    branches:
+      - dev/amida/develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: upload code
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: --exclude=/vendor/ --exclude=/design/adminhtml/ --exclude=/autoload.php --exclude=/etc/db_schema.xml --exclude=/etc/di.xml --exclude=/etc/env.php --exclude=/etc/NonComposerComponentRegistration.php --exclude=/etc/registration_globlist.php --exclude=/etc/vendor_path.php --exclude=bootstrap.php --no-owner --no-group --delete -avh
+          path: app/*
+          remote_path: /home/deploy/site/app/
+          remote_host: ${{ secrets.SSH_IP }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
+      - name: upload composer
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: --exclude=".git" --exclude=".github" -avh --delete
+          path: ./composer.*
+          remote_path: /home/deploy/site/
+          remote_host: ${{ secrets.SSH_IP }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_KEY }}
+
+      - name: Setup deploy permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo chown -R deploy:deploy /home/deploy/site/ && sudo chmod -R g+rw /home/deploy/site/
+
+      - name: Composer install
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cd /home/deploy/site/ && composer install
+
+      - name: clear cache directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: bash /home/deploy/scripts/clear_cache_build.sh
+
+      - name: Setup permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo chown -R deploy:deploy /home/deploy/site/
+
+      - name: Disable cache
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cp -r /home/deploy/cache/env.php /home/deploy/site/app/etc/env.php
+
+      - name: Upgrade code
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cd /home/deploy/site/ && bin/magento setup:upgrade
+
+      - name: Deploy static
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cd /home/deploy/site/ && bin/magento setup:static-content:deploy -f
+
+      - name: Enable cache
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: cp -r /home/deploy/cache/env_cache.php /home/deploy/site/app/etc/env.php
+
+      - name: Move to work directory vendor/
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo rsync -avzr --delete /home/deploy/site/vendor/* /var/www/html/vendor/
+
+      - name: Move to work directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo rsync -avzr --delete /home/deploy/site/app/* /var/www/html/app/
+
+      - name: clear cache directory
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: bash /home/deploy/scripts/clear_cache.sh
+
+      - name: Setup permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: sudo chown -R www-data:www-data /var/www/html/ && sudo chmod -R g+rw /var/www/html/
