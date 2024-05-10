@@ -3,7 +3,7 @@ name: m2-live-dev-002.antoshka.ua
 on:
   push:
     branches:
-      - dev/awdev/develop
+      - developer/awdev
 
 jobs:
   deploy:
@@ -60,7 +60,7 @@ jobs:
           host: ${{ secrets.M2_LIVE_AWDEV_SSH_IP }}
           username: ${{ secrets.M2_LIVE_AWDEV_SSH_USER }}
           key: ${{ secrets.M2_LIVE_AWDEV_SSH_KEY }}
-          script: cd /home/deploy/site/ && composer install && composer update
+          script: cd /home/deploy/site/ && composer install
 
       - name: Setup magento
         uses: appleboy/ssh-action@master
