@@ -18,7 +18,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: rm -rf /home/deploy/site/* && find /home/deploy/site/ -maxdepth 1 -type f -name ".*" -delete
+          script: |
+            rm -rf /home/deploy/site/*
+            find /home/deploy/site/ -maxdepth 1 -type f -name ".*" -delete
 
       - name: upload code
         uses: burnett01/rsync-deployments@5.2
@@ -36,7 +38,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: sudo chown -R deploy:deploy /home/deploy/site/ && sudo chmod -R g+rw /home/deploy/site/
+          script: |
+            sudo chown -R deploy:deploy /home/deploy/site/
+            sudo chmod -R g+rw /home/deploy/site/
 
       - name: Git update config files
         uses: appleboy/ssh-action@master
@@ -44,7 +48,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /home/deploy/config/ && git pull
+          script: |
+            cd /home/deploy/config/
+            git pull
 
       - name: Copy config files
         uses: appleboy/ssh-action@master
@@ -60,7 +66,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /home/deploy/site/ && composer install && composer update
+          script: |
+            cd /home/deploy/site/
+            composer install
 
       - name: Setup magento
         uses: appleboy/ssh-action@master
@@ -68,7 +76,13 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /home/deploy/site/ && bin/magento setup:upgrade && bin/magento setup:di:compile && bin/magento setup:static-content:deploy en_US uk_UA ru_RU -f && bin/magento cache:clean && bin/magento cache:flush
+          script: |
+            cd /home/deploy/site/
+            bin/magento setup:upgrade
+            bin/magento setup:di:compile
+            bin/magento setup:static-content:deploy en_US uk_UA ru_RU -f
+            bin/magento cache:clean
+            bin/magento cache:flush
 
       - name: Remove old magento site
         uses: appleboy/ssh-action@master
@@ -76,7 +90,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: sudo rm -rf /var/www/magento/* && find /var/www/magento/ -maxdepth 1 -type f -name ".*" -delete
+          script: |
+            sudo rm -rf /var/www/magento/*
+            find /var/www/magento/ -maxdepth 1 -type f -name ".*" -delete
 
       - name: Move to work directory
         uses: appleboy/ssh-action@master
@@ -92,7 +108,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: sudo ln -s /var/www/m2folders/log /var/www/magento/var/log && ln -s /var/www/m2folders/media /var/www/magento/pub/media
+          script: | 
+            sudo ln -s /var/www/data-center/m2-log/m2-live-prod-001 /var/www/magento/var/log
+            sudo ln -s /var/www/data-center/m2-media/m2-media-dev /var/www/magento/pub/media
 
       - name: Setup permissions 1
         uses: appleboy/ssh-action@master
@@ -100,7 +118,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /var/www/magento/ && sudo find var generated vendor /var/www/magento/pub/static pub/media app/etc -type f -exec chmod g+w {} +
+          script: |
+            cd /var/www/magento/
+            sudo find var generated vendor /var/www/magento/pub/static pub/media app/etc -type f -exec chmod g+w {} +
 
       - name: Setup permissions 2
         uses: appleboy/ssh-action@master
@@ -108,7 +128,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /var/www/magento/ && sudo find var generated vendor /var/www/magento/pub/static pub/media app/etc -type d -exec chmod g+ws {} +
+          script: |
+            cd /var/www/magento/
+            sudo find var generated vendor /var/www/magento/pub/static pub/media app/etc -type d -exec chmod g+ws {} +
 
       - name: Setup permissions 3
         uses: appleboy/ssh-action@master
@@ -116,7 +138,9 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /var/www/magento/ && sudo chown -R www-data:www-data /var/www/magento
+          script: |
+            cd /var/www/magento/
+            sudo chown -R www-data:www-data /var/www/magento
 
       - name: Setup permissions 4
         uses: appleboy/ssh-action@master
@@ -124,12 +148,14 @@ jobs:
           host: ${{ secrets.M2_LIVE_PROD_SSH_IP }}
           username: ${{ secrets.M2_LIVE_PROD_SSH_USER }}
           key: ${{ secrets.M2_LIVE_PROD_SSH_KEY }}
-          script: cd /var/www/magento/ && sudo chmod u+x /var/www/magento/bin/magento
+          script: |
+            cd /var/www/magento/
+            sudo chmod u+x /var/www/magento/bin/magento
 
-      - name: Setup permissions 5
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.M2_LIVE_TEST_SSH_IP }}
-          username: ${{ secrets.M2_LIVE_TEST_SSH_USER }}
-          key: ${{ secrets.M2_LIVE_TEST_SSH_KEY }}
-          script: cd /var/www/ && sudo chown -R www-data:www-data /var/www/m2folders/
+    #   - name: Setup permissions 5
+    #     uses: appleboy/ssh-action@master
+    #     with:
+    #       host: ${{ secrets.M2_LIVE_TEST_SSH_IP }}
+    #       username: ${{ secrets.M2_LIVE_TEST_SSH_USER }}
+    #       key: ${{ secrets.M2_LIVE_TEST_SSH_KEY }}
+    #       script: cd /var/www/ && sudo chown -R www-data:www-data /var/www/m2folders/

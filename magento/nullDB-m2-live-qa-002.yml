@@ -1,4 +1,4 @@
-name: NullDB activate m2-live-test-001
+name: NullDB activate m2-live-qa-002
 
 on:
   workflow_dispatch:
@@ -13,9 +13,9 @@ jobs:
       - name: Setup NullDB
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_TEST_SSH_IP }}
-          username: ${{ secrets.M2_LIVE_TEST_SSH_USER }}
-          key: ${{ secrets.M2_LIVE_TEST_SSH_KEY }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
+          username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
+          key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
             rm -r /home/deploy/magento/project-enterprise-edition/
             cd /home/deploy/magento/

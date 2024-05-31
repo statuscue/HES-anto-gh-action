@@ -1,4 +1,4 @@
-name: Manual Deploy m2-live-qa-001
+name: Manual Deploy m2-live-qa-002
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
       - name: Remove old build site
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -26,14 +26,14 @@ jobs:
           switches: --exclude=/vendor/ --exclude=/design/adminhtml/ --exclude=/autoload.php --exclude=/etc/db_schema.xml --exclude=/etc/di.xml --exclude=/etc/env.php --exclude=/etc/NonComposerComponentRegistration.php --exclude=/etc/registration_globlist.php --exclude=/etc/vendor_path.php --exclude=bootstrap.php --no-owner --no-group --delete -avh
           path: app/*
           remote_path: /home/deploy/site/app/
-          remote_host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          remote_host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           remote_user: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           remote_key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
 
       - name: Setup deploy permissions
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -43,7 +43,7 @@ jobs:
       - name: Git update config files
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -53,7 +53,7 @@ jobs:
       - name: Copy config files
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: cp -r /home/deploy/config/* /home/deploy/site
@@ -61,7 +61,7 @@ jobs:
       - name: Composer install & update
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -71,7 +71,7 @@ jobs:
       - name: Setup magento
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -85,7 +85,7 @@ jobs:
       - name: Remove old magento site
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -95,7 +95,7 @@ jobs:
       - name: Move to work directory
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: sudo rsync -avzr --delete --exclude 'pub/media' --exclude 'var/log'  /home/deploy/site/* /var/www/magento/
@@ -103,17 +103,17 @@ jobs:
       - name: Create Symbolic Links
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: | 
-            sudo ln -s /var/www/data-center/m2-log/m2-live-qa-001 /var/www/magento/var/log
+            sudo ln -s /var/www/data-center/m2-log/m2-live-qa-002 /var/www/magento/var/log
             sudo ln -s /var/www/data-center/m2-media/m2-media-dev /var/www/magento/pub/media
 
       - name: Setup permissions 1
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -123,7 +123,7 @@ jobs:
       - name: Setup permissions 2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -133,7 +133,7 @@ jobs:
       - name: Setup permissions 3
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |
@@ -143,7 +143,7 @@ jobs:
       - name: Setup permissions 4
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.M2_LIVE_QA_SSH_IP }}
+          host: ${{ secrets.M2_LIVE_QA002_SSH_IP }}
           username: ${{ secrets.M2_LIVE_QA_SSH_USER }}
           key: ${{ secrets.M2_LIVE_QA_SSH_KEY }}
           script: |

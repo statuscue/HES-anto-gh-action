@@ -1,0 +1,19 @@
+name: db-m2_live_develop_awdev-backup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create DB backup file
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.M2_LIVE_MYSQL_SSH_IP }}
+          username: ${{ secrets.M2_LIVE_MYSQL_SSH_USER }}
+          key: ${{ secrets.M2_LIVE_MYSQL_SSH_KEY }}
+          script: |
+            cd /home/deploy/sql-work/
+            mysqldump -u${{ secrets.MYSQL_USER }} -p${{ secrets.MYSQL_PASSWORD }} m2_live_develop_awdev | gzip > m2_live_develop_awdev_$(date +%Y%m%d%H%M)_bkp.sql.gz
+            mv /home/deploy/sql-work/m2_live_develop_awdev*.gz /media/data-center/sql-dump/m2-live-dev-002
